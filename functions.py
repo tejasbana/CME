@@ -1,5 +1,7 @@
 from tkinter import *
 from PIL import Image, ImageTk
+from tkmacosx import Button as button
+
 
 #place an image on the grid
 def display_logo(url, row, column,columnspan):
@@ -14,7 +16,7 @@ def display_logo(url, row, column,columnspan):
 def display_icon(url, row, column, stick):
     icon = Image.open(url)
     #resize image
-    icon = icon.resize((20,20))
+    icon = icon.resize((25,25))
     icon = ImageTk.PhotoImage(icon)
     icon_label = Button(image=icon, width=25, height=25)
     icon_label.image = icon
@@ -69,7 +71,7 @@ def display_images(img):
     img = ImageTk.PhotoImage(img)
     img_label = Label(image=img, bg="white")
     img_label.image = img
-    img_label.grid(row=4, column=2, rowspan=2)
+    img_label.grid(row=5, column=6, rowspan=4, columnspan=2)
     return img_label
 
 def delete_color_option():
@@ -83,5 +85,9 @@ def delete_color_option():
                         font=("Raleway",12), highlightbackground="#20bebe", 
                         bg="#20bebe", fg="black", height=1, width=15)
     delete_btn.grid(column=7, row=3, sticky=NW)
+
+
+##########################################
+
 
 
