@@ -20,10 +20,10 @@ from sklearn.cluster import MiniBatchKMeans
 from tkmacosx import Button as button
 
 
-page_contents=[]
-all_images=[]
-img_idx = [0]
-displayed_img = []
+# page_contents=[]
+# all_images=[]
+# img_idx = [0]
+# displayed_img = []
 options_list = [1,2,3,4,5,6,7]
 hexadecimal = []
 choosen_color = []
@@ -32,44 +32,103 @@ color_score = {}
 pattern_setting = {}
 spot_setting = {}
 pixelization = {}
+# Pattern Generator
+camo_pattern = []
 
 def content_generator():
 	parameters = {'width': int( pattern_setting["width"].get("1.0",'end-1c') ), 'height': int( pattern_setting["height"].get("1.0",'end-1c') ), 'polygon_size': int( pattern_setting["polygon_size"].get("1.0",'end-1c') ), 'color_bleed': int( pattern_setting["color_bleed"].get("1.0",'end-1c') ), 'max_depth': int( pattern_setting["max_depth"].get("1.0",'end-1c') ),
 				  'colors': hexadecimal,
 				  'spots': {'amount': int( spot_setting["amount"].get("1.0",'end-1c') ), 'radius': {'min': int(spot_setting["radius_min"].get("1.0",'end-1c') ), 'max': int( spot_setting["radius_max"].get("1.0",'end-1c') ) }, 'sampling_variation': int(spot_setting["sampling_variation"].get("1.0",'end-1c') ) },
-				  'pixelize': {'percentage': int( pixelization["percentage"].get("1.0",'end-1c') ), 'sampling_variation': int( pixelization["pixelization_variation"].get("1.0",'end-1c') ), 'density': {'x': int( pixelization["density_x"].get("1.0",'end-1c') ), 'y': int( pixelization["density_y"].get("1.0",'end-1c')) }}}
-	camo_pattern = generate(parameters)
-	display_images(camo_pattern)
+				  'pixelize': {'percentage': float( pixelization["percentage"].get("1.0",'end-1c') ), 'sampling_variation': int( pixelization["pixelization_variation"].get("1.0",'end-1c') ), 'density': {'x': int( pixelization["density_x"].get("1.0",'end-1c') ), 'y': int( pixelization["density_y"].get("1.0",'end-1c')) }}} 
 
-def set_default_setting():
-	pattern_setting["width"].insert(END, '100')
-	pattern_setting["height"].insert(END, '100')
-	pattern_setting["polygon_size"].insert(END, '50')
-	pattern_setting["color_bleed"].insert(END, '1')
-	pattern_setting["max_depth"].insert(END, '8')
+	num_pattern = 5  # Number of patterns generated at a time
+	camo_pattern.clear()
+	for i in range(num_pattern):
+		camo_pattern.append( generate(parameters) )
 
-	spot_setting["amount"].insert(END, '200000')
-	spot_setting["radius_min"].insert(END, '1')
-	spot_setting["radius_max"].insert(END, '10')
-	spot_setting["sampling_variation"].insert(END, '5')
+	display_images(camo_pattern[0])
 
-	pixelization["percentage"].insert(END, '1')
-	pixelization["pixelization_variation"].insert(END, '20')
-	pixelization["density_x"].insert(END, '50')
-	pixelization["density_y"].insert(END, '50')
+	tmp = "Image 1 of " + str(num_pattern)
+	what_img_label = Label(root, text="Image 1 of ", font=("shanti",15,'bold'), bg="#126e82")
+	what_img_label.grid(row=3, column=6)
+
+	display_icon("arrow_l.png", row=3, column=5, stick=E)
+	display_icon("arrow_r.png", row=3, column=7, stick=W)
+
+
+
+def set_default_setting(default_pattern):
+	default = default_pattern.get()
+	tmp = ['100', '100', '50', '1', '8', '200000', '1', '10', '5', '1', '20', '50', '50']
+	if default == "Pixal1":
+		tmp = ['100', '100', '50', '1', '8', '200000', '1', '10', '5', '1', '20', '50', '50']
+	elif default == "Blots1":
+		tmp = ['700', '700', '200', '6', '15', '20000', '7', '14', '10', '0', '0', '0', '0']
+	elif default == "Vodka1":
+		tmp = ['700', '700', '200', '0', '15', '3000', '30', '40', '10', '0.75', '10', '60', '100']
+	elif default == "Maple1":
+		tmp = ['700', '700', '150', '3', '15', '500', '20', '30', '20', '1', '20', '70', '50']
+
+	# min_length = min(len(pattern_setting), min(len(spot_setting), len(pixelization)))
+	for p1,p2,p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys() ):
+		pattern_setting[p1].delete('1.0', END)
+		spot_setting[p2].delete('1.0', END)
+		pixelization[p3].delete('1.0', END)
+		pattern_setting[p1].grid_forget()
+		spot_setting[p2].grid_forget()
+		pixelization[p3].grid_forget()
+	pattern_setting["max_depth"].delete('1.0', END)
+	pattern_setting["max_depth"].grid_forget()
+
+	pattern_setting["width"].insert(END, tmp[0])
+	pattern_setting["height"].insert(END, tmp[1])
+	pattern_setting["polygon_size"].insert(END, tmp[2])
+	pattern_setting["color_bleed"].insert(END, tmp[3])
+	pattern_setting["max_depth"].insert(END, tmp[4])
+
+	spot_setting["amount"].insert(END, tmp[5])
+	spot_setting["radius_min"].insert(END, tmp[6])
+	spot_setting["radius_max"].insert(END, tmp[7])
+	spot_setting["sampling_variation"].insert(END, tmp[8])
+
+	pixelization["percentage"].insert(END, tmp[9])
+	pixelization["pixelization_variation"].insert(END, tmp[10])
+	pixelization["density_x"].insert(END, tmp[11])
+	pixelization["density_y"].insert(END, tmp[12])
+
+
+	pattern_setting["width"].grid(		column=1, row=4, padx=0, pady=1, sticky=W)
+	pattern_setting["height"].grid(		column=1, row=5, padx=0, pady=1, sticky=W)
+	pattern_setting["polygon_size"].grid(column=1, row=6, padx=0, pady=1, sticky=W)
+	pattern_setting["color_bleed"].grid( column=1, row=7, padx=0, pady=1, sticky=W)
+	pattern_setting["max_depth"].grid(	column=1, row=8, padx=0, pady=1, sticky=W)
+	#Spots text
+	spot_setting["amount"].grid(			column=3, row=5, padx=0, pady=1, sticky=W)
+	spot_setting["radius_min"].grid(		column=3, row=6, padx=0, pady=1, sticky=W)
+	spot_setting["radius_max"].grid(		column=3, row=7, padx=0, pady=1, sticky=W)
+	spot_setting["sampling_variation"].grid(column=3, row=8, padx=0, pady=1, sticky=W)
+	# Pixelization text
+	pixelization["percentage"].grid(			column=5, row=5, padx=0, pady=1, sticky=W)
+	pixelization["pixelization_variation"].grid(column=5, row=6, padx=0, pady=1, sticky=W)
+	pixelization["density_x"].grid(			    column=5, row=7, padx=0, pady=1, sticky=W)
+	pixelization["density_y"].grid(			    column=5, row=8, padx=0, pady=1, sticky=W)
+
 
 def generate_pattern():
 	generate_content = Frame(root, width=1200, height=50, bg="#126e82")
 	generate_content.grid(columnspan=8, rowspan=1, row=3)
 
 	cofig_label = Label(root, text="Set Pattern Configurations", font=("shanti",20,'bold'), bg="#126e82")
-	cofig_label.grid(row=3, column=2, columnspan=2)
+	cofig_label.grid(row=3, column=1, columnspan=2)
 
-	what_img_label = Label(root, text="Image 1 of 5", font=("shanti",15,'bold'), bg="#126e82")
-	what_img_label.grid(row=3, column=6)
+	default_pattern = StringVar(root)
+	default_pattern.set("Choose Default Config")
+	question_menu = OptionMenu(root, default_pattern, *["Pixal1", "Blots1", "Vodka1", "Maple1"], command=lambda x=None: set_default_setting(default_pattern))
+	question_menu.config(bg = "#126e82")  # Set background color to green
+	# Set this to what you want, I'm assuming "green"...
+	question_menu["menu"].config(bg="#126e82")
+	question_menu.grid(row=3, column=4)
 
-	display_icon("arrow_l.png", row=3, column=5, stick=E)
-	display_icon("arrow_r.png", row=3, column=7, stick=W)
 	# Generators Frame
 	main_content = Frame(root, width=1200, height=350, bg="#132c33")
 	main_content.grid(columnspan=8, rowspan=7, row=4)
@@ -119,7 +178,7 @@ def generate_pattern():
 	pixelization["density_y"] = Text(root, height=1, width=15, padx=1, pady=1)
 
 	# Set Default values for parameters generation
-	set_default_setting()
+	set_default_setting(default_pattern)
 	# Display setting
 	label_width.grid(		column=0, row=4, padx=10, pady=1, sticky=E)
 	label_height.grid(		column=0, row=5, padx=10, pady=1, sticky=E)
