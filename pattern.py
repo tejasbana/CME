@@ -20,6 +20,7 @@ from sklearn.cluster import MiniBatchKMeans
 from tkmacosx import Button as button
 
 
+
 # page_contents=[]
 # all_images=[]
 # img_idx = [0]
@@ -279,7 +280,14 @@ def extract_color(image):
 	km = MiniBatchKMeans( n_clusters = int(dominant_color.get()) )
 	km.fit(pixel)
 	minibatch_centers = np.array(km.cluster_centers_ , dtype='uint8')
-
+	avg = [0, 0, 0]
+	for x in minibatch_centers:
+		if not (x[0] < 10 and x[1] < 10 and x[2] < 10):
+			avg += (x / len(minibatch_centers) - 1)
+	print(avg)
+	for x in range(len(minibatch_centers)):
+		if (minibatch_centers[x][0] < 10 and minibatch_centers[x][1] < 10 and minibatch_centers[x][2] < 10):
+			minibatch_centers[x] = avg
 	hexadecimal.clear()
 	for array in minibatch_centers:
 		hexadecimal.append( '#%02x%02x%02x' % (array[0], array[1], array[2]) )
