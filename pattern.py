@@ -18,8 +18,7 @@ from camogen.generate import generate
 from sklearn.cluster import KMeans
 from sklearn.cluster import MiniBatchKMeans
 from tkmacosx import Button as button
-
-
+import rcnn_detection
 
 # page_contents=[]
 # all_images=[]
@@ -333,6 +332,7 @@ def open_file():
 		# img = ImageTk.PhotoImage(img)
 		# image_label = Label(root, image=img)
 		# image_label.image = img # this feels redundant but the image didn't show up without it in my app
+		rcnn_detection.detect(filename)
 		extract_color(img)
 		
 
