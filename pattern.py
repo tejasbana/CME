@@ -46,7 +46,7 @@ def content_generator():
 	for i in range(num_pattern):
 		camo_pattern.append( generate(parameters) )
 
-	display_images(camo_pattern[0])
+	display_images(camo_pattern[0]) # this function displays images
 
 	tmp = "Image 1 of " + str(num_pattern)
 	what_img_label = Label(root, text="Image 1 of ", font=("shanti",15,'bold'), bg="#126e82")
@@ -327,13 +327,17 @@ def open_file():
 	browse_text.set("loading...")
 	# file = askopenfile(parent=root, mode='rb', filetypes=[("Pdf file", "*.pdf")])
 	filename = askopenfilename()
+	img = None
 	if filename:
 		img = Image.open(filename) #.resize( Image.NEAREST(225, 225))) # the one-liner I used in my app
 		# img = ImageTk.PhotoImage(img)
 		# image_label = Label(root, image=img)
 		# image_label.image = img # this feels redundant but the image didn't show up without it in my app
-		rcnn_detection.detect(filename)
+	if img:
+		masked_img = rcnn_detection.detect(np.array(img))
+		print("masked img is ",masked_img)
 		extract_color(img)
+
 		
 
 # Display Logo
