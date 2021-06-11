@@ -5,7 +5,7 @@ def overlap_camo(filtered,camo_pattern):
     pil_camo = Image.fromarray(np.array(camo_pattern))
     width, height = pil_filtered.size
     print(width , height)
-    pil_camo.resize((100,100))
+    pil_camo = pil_camo.resize((100,100))
     camo_w, camo_h = pil_camo.size
     print(camo_w, camo_h)
     print(np.ceil(width/camo_w),np.ceil(height/camo_h))
