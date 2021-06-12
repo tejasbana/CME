@@ -3,3 +3,6 @@
 *.xml
 .idea/wubba_lubba_dub_dub.iml
 .DS_Store
+.h5
+MaskRCNN/mask_rcnn_coco.h5
+*.h5
