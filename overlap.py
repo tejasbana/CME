@@ -4,13 +4,13 @@ def overlap_camo(filtered,camo_pattern):
     pil_filtered = Image.fromarray(filtered)
     pil_camo = Image.fromarray(np.array(camo_pattern))
     width, height = pil_filtered.size
-    print(width , height)
+    #print(width , height)
     pil_camo = pil_camo.resize((100,100))
     camo_w, camo_h = pil_camo.size
-    print(camo_w, camo_h)
-    print(np.ceil(width/camo_w),np.ceil(height/camo_h))
+    #print(camo_w, camo_h)
+    #print(np.ceil(width/camo_w),np.ceil(height/camo_h))
     rot_array = np.random.randint(0,4,(int(np.ceil(width/camo_w)),int(np.ceil(height/camo_h))))
-    print(rot_array)
+    #print(rot_array)
     prev_angle_mult = rot_array[0][0]
     for j in range(height):
       for r in range(width):

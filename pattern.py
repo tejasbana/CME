@@ -1,27 +1,18 @@
-from tkinter import *
-from tkinter import ttk
 from tkinter import colorchooser, messagebox
-from PIL import Image, ImageTk
-from tkinter.filedialog import askopenfile
-from functions import display_logo, display_textbox, extract_images, display_icon, resize_img, display_images
-from functions import *
-import numpy as np
-from tkinter.filedialog import askopenfilename, askopenfile
 import os
+from tkinter import colorchooser, messagebox
+from tkinter.filedialog import askopenfilename
+
 import numpy as np
-from numpy import reshape
-from matplotlib import pyplot as plt
-import cv2
-import camogen
-import matplotlib.pyplot as plt
-from camogen.generate import generate
-from sklearn.cluster import KMeans
 from sklearn.cluster import MiniBatchKMeans
 from tkmacosx import Button as button
-import rcnn_detection
+
 import filter
 import overlap
-import overlap
+import rcnn_detection
+from camogen.generate import generate
+from functions import *
+
 # page_contents=[]
 # all_images=[]
 # img_idx = [0]
@@ -37,7 +28,7 @@ pixelization = {}
 # Pattern Generator
 selected_pattern = 0
 camo_pattern = []
-# image varuables
+# image_array variables
 masked_array = None
 filtered_array = None
 def content_generator():
@@ -51,7 +42,7 @@ def content_generator():
                             'radius': {'min': int(spot_setting["radius_min"].get("1.0", 'end-1c')),
                                        'max': int(spot_setting["radius_max"].get("1.0", 'end-1c'))},
                             'sampling_variation': int(spot_setting["sampling_variation"].get("1.0", 'end-1c'))},
-                  'pixelize': {'percentage': float(pixelization["percentage"].get("1.0", 'end-1c')),
+                  'pixelize': {'percentage': float(pixelization["percentage"].get("1.0", 'end-1c'))/100,
                                'sampling_variation': int(pixelization["pixelization_variation"].get("1.0", 'end-1c')),
                                'density': {'x': int(pixelization["density_x"].get("1.0", 'end-1c')),
                                            'y': int(pixelization["density_y"].get("1.0", 'end-1c'))}}}
@@ -63,8 +54,9 @@ def content_generator():
 
     print("camo pattern", camo_pattern[0])
     display_images(camo_pattern[0])  # this function displays images
-    overlapped = overlap.overlap_camo(filtered_array, camo_pattern[0])
-    display_images(overlapped,3,10,1, 1)
+    if len(filtered_array) > 0:
+        overlapped = overlap.overlap_camo(filtered_array, camo_pattern[0])
+        display_images(overlapped,2,10,1, 1)
     tmp = "Image 1 of " + str(num_pattern)
     what_img_label = Label(root, text="Image 1 of ", font=("shanti", 15, 'bold'), bg="#126e82")
     what_img_label.grid(row=3, column=6)
@@ -75,15 +67,15 @@ def content_generator():
 
 def set_default_setting(default_pattern):
     default = default_pattern.get()
-    tmp = ['100', '100', '50', '1', '8', '200000', '1', '10', '5', '1', '20', '50', '50']
+    tmp = ['100', '100', '50', '1', '8', '20000', '1', '10', '5', '100', '20', '50', '50']
     if default == "Pixal1":
-        tmp = ['100', '100', '50', '1', '8', '200000', '1', '10', '5', '1', '20', '50', '50']
+        tmp = ['100', '100', '50', '1', '8', '20000', '1', '10', '5', '100', '20', '50', '50']
     elif default == "Blots1":
-        tmp = ['700', '700', '200', '6', '15', '20000', '7', '14', '10', '0', '0', '0', '0']
+        tmp = ['100', '100', '200', '6', '15', '20000', '7', '14', '10', '0', '0', '0', '0']
     elif default == "Vodka1":
-        tmp = ['700', '700', '200', '0', '15', '3000', '30', '40', '10', '0.75', '10', '60', '100']
+        tmp = ['100', '100', '200', '0', '15', '3000', '30', '40', '10', '75', '10', '60', '100']
     elif default == "Maple1":
-        tmp = ['700', '700', '150', '3', '15', '500', '20', '30', '20', '1', '20', '70', '50']
+        tmp = ['700', '700', '150', '3', '15', '500', '20', '30', '20', '100', '20', '70', '50']
 
     # min_length = min(len(pattern_setting), min(len(spot_setting), len(pixelization)))
     for p1, p2, p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys()):
@@ -123,10 +115,10 @@ def set_default_setting(default_pattern):
     spot_setting["radius_max"].grid(	column=3, row=7, padx=0, pady=1, sticky=W)
     spot_setting["sampling_variation"].grid(column=3, row=8, padx=0, pady=1, sticky=W)
     # Pixelization text
-    pixelization["percentage"].grid(			column=5, row=5, padx=0, pady=1, sticky=W)
+    pixelization["percentage"].grid(column=5, row=5, padx=0, pady=1, sticky=W)
     pixelization["pixelization_variation"].grid(column=5, row=6, padx=0, pady=1, sticky=W)
-    pixelization["density_x"].grid(			    column=5, row=7, padx=0, pady=1, sticky=W)
-    pixelization["density_y"].grid(			    column=5, row=8, padx=0, pady=1, sticky=W)
+    pixelization["density_x"].grid(column=5, row=7, padx=0, pady=1, sticky=W)
+    pixelization["density_y"].grid(column=5, row=8, padx=0, pady=1, sticky=W)
 
 
 def generate_pattern():
@@ -372,11 +364,14 @@ def open_file():
         masked = Image.fromarray(masked_array.astype(np.uint8))
         display_images(masked, 1, 10, 1, 1)
         global filtered_array
-        filtered_array,cropped = filter.remove_single_object(np.array(img),results,1)
-        print(filtered_array)
-        filtered = Image.fromarray(filtered_array.astype(np.uint8))
-        display_images(filtered,2,10, 1, 1)
-        extract_color(filtered)
+        if results["rois"].shape[0]:
+            filtered_array,cropped = filter.remove_single_object(np.array(img),results,1)
+            filtered = Image.fromarray(filtered_array.astype(np.uint8))
+            #display_images(filtered,2,10, 1, 1)
+            extract_color(filtered)
+        else:
+            filtered_array = None
+            extract_color(img)
 
 
 
