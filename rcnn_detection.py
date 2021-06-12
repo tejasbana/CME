@@ -7,7 +7,7 @@ import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
 # Root directory of the project
-ROOT_DIR = os.path.abspath("/Users/rahulghosh/Documents/GitHub/wubba_lubba_dub_dub/Mask_RCNN")
+ROOT_DIR = os.path.abspath("/Users/rahulghosh/Documents/GitHub/wubba_lubba_dub_dub/MaskRCNN")
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn import utils
