@@ -1,7 +1,9 @@
 from PIL import Image
 import numpy as np
-def overlap_camo(filtered,camo_pattern):
+from PIL import ImageOps
+def overlap_camo(filtered,cropped,camo_pattern):
     pil_filtered = Image.fromarray(filtered)
+    pil_cropped = Image.fromarray(cropped)
     pil_camo = Image.fromarray(np.array(camo_pattern))
     width, height = pil_filtered.size
     #print(width , height)
@@ -23,4 +25,7 @@ def overlap_camo(filtered,camo_pattern):
           #pil_filtered.putpixel( (r,j),pil_camo.getpixel((l,k)))
           pil_filtered.putpixel( (r,j), pil_camo.rotate(90*angle_mult).getpixel((l,k)))
           prev_angle_mult = angle_mult
+    gray_image = ImageOps.grayscale(pil_cropped).convert("RGB")
+    print(gray_image.mode,pil_filtered.mode)
+    pil_filtered = Image.blend(pil_filtered,gray_image,alpha = .3)
     return pil_filtered

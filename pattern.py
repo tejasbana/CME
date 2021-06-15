@@ -31,6 +31,7 @@ camo_pattern = []
 # image_array variables
 masked_array = None
 filtered_array = None
+cropped_array = None
 def content_generator():
     parameters = {'width': int(pattern_setting["width"].get("1.0", 'end-1c')),
                   'height': int(pattern_setting["height"].get("1.0", 'end-1c')),
@@ -49,13 +50,13 @@ def content_generator():
 
     num_pattern = 5  # Number of patterns generated at a time
     camo_pattern.clear()
-    for i in range(num_pattern):
-        camo_pattern.append(generate(parameters))
+    #for i in range(num_pattern):
+    camo_pattern.append(generate(parameters))
 
     print("camo pattern", camo_pattern[0])
     display_images(camo_pattern[0])  # this function displays images
-    if len(filtered_array) > 0:
-        overlapped = overlap.overlap_camo(filtered_array, camo_pattern[0])
+    if len(filtered_array) > 0 and len(cropped_array)>0:
+        overlapped = overlap.overlap_camo(filtered_array,cropped_array,camo_pattern[0])
         display_images(overlapped,2,10,1, 1)
     tmp = "Image 1 of " + str(num_pattern)
     what_img_label = Label(root, text="Image 1 of ", font=("shanti", 15, 'bold'), bg="#126e82")
@@ -364,8 +365,9 @@ def open_file():
         masked = Image.fromarray(masked_array.astype(np.uint8))
         display_images(masked, 1, 10, 1, 1)
         global filtered_array
+        global cropped_array
         if results["rois"].shape[0]:
-            filtered_array,cropped = filter.remove_single_object(np.array(img),results,1)
+            filtered_array,cropped_array = filter.remove_single_object(np.array(img),results,1)
             filtered = Image.fromarray(filtered_array.astype(np.uint8))
             #display_images(filtered,2,10, 1, 1)
             extract_color(filtered)
