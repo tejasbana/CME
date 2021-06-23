@@ -76,7 +76,7 @@ def set_default_setting(default_pattern):
     elif default == "Vodka1":
         tmp = ['100', '100', '200', '0', '15', '3000', '30', '40', '10', '75', '10', '60', '100']
     elif default == "Maple1":
-        tmp = ['700', '700', '150', '3', '15', '500', '20', '30', '20', '100', '20', '70', '50']
+        tmp = ['100', '100', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
 
     # min_length = min(len(pattern_setting), min(len(spot_setting), len(pixelization)))
     for p1, p2, p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys()):
