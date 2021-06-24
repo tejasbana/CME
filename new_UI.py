@@ -49,19 +49,66 @@ current_state = STATES.load_image
 tmp = ['1000', '1000', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
 # functions
 from enum import Enum
+def set_default_setting():
+    print("def set",tmp)
+    #clean up tmp
+    for p1, p2, p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys()):
+        pattern_setting[p1].delete('1.0', END)
+        spot_setting[p2].delete('1.0', END)
+        pixelization[p3].delete('1.0', END)
+        pattern_setting[p1].grid_forget()
+        spot_setting[p2].grid_forget()
+        pixelization[p3].grid_forget()
+    pattern_setting["max_depth"].delete('1.0', END)
+    # insert values
+    pattern_setting["width"].insert(END, tmp[0])
+    pattern_setting["height"].insert(END, tmp[1])
+    pattern_setting["polygon_size"].insert(END, tmp[2])
+    pattern_setting["color_bleed"].insert(END, tmp[3])
+    pattern_setting["max_depth"].insert(END, tmp[4])
 
+    spot_setting["amount"].insert(END, tmp[5])
+    spot_setting["min"].insert(END, tmp[6])
+    spot_setting["max"].insert(END, tmp[7])
+    spot_setting["sampling_variation"].insert(END, tmp[8])
 
+    pixelization["percentage"].insert(END, tmp[9])
+    pixelization["sampling_variation"].insert(END, tmp[10])
+    pixelization["x"].insert(END, tmp[11])
+    pixelization["y"].insert(END, tmp[12])
+
+def cache_params():
+    tmp[0] = pattern_setting["width"].get("1.0", 'end-1c')
+    tmp[1] = pattern_setting["height"].get("1.0", 'end-1c')
+    tmp[2] = pattern_setting["polygon_size"].get("1.0", 'end-1c')
+    tmp[3] = pattern_setting["color_bleed"].get("1.0", 'end-1c')
+    tmp[4] = pattern_setting["max_depth"].get("1.0", 'end-1c')
+    tmp[5] = spot_setting["amount"].get("1.0", 'end-1c')
+    tmp[6] = spot_setting["min"].get("1.0", 'end-1c')
+    tmp[7] = spot_setting["max"].get("1.0", 'end-1c')
+    tmp[8] = spot_setting["sampling_variation"].get("1.0", 'end-1c')
+    tmp[9] = pixelization["percentage"].get("1.0", 'end-1c')
+    tmp[10] = pixelization["sampling_variation"].get("1.0", 'end-1c')
+    tmp[11] = pixelization["x"].get("1.0", 'end-1c')
+    tmp[12] = pixelization["y"].get("1.0", 'end-1c')
+    print("cache params",tmp)
 def camo_generator():
-    parameters = {'width': int(tmp[0]), 'height': int(tmp[1]),
-                  'polygon_size': int(tmp[2]), 'color_bleed': int(tmp[3]),
-                  'max_depth': int(tmp[4]), 'colors': hexadecimal,
-                  'spots': {'amount': int(tmp[5]),
-                            'radius': {'min': int(tmp[6]), 'max': int(tmp[7])},
-                            'sampling_variation': int(tmp[8])
+    print("generator",tmp)
+    parameters = {'width': int(pattern_setting["width"].get("1.0", 'end-1c')),
+                  'height': int(pattern_setting["height"].get("1.0", 'end-1c')),
+                  'polygon_size': int(pattern_setting["polygon_size"].get("1.0", 'end-1c')),
+                  'color_bleed': int(pattern_setting["color_bleed"].get("1.0", 'end-1c')),
+                  'max_depth': int(pattern_setting["max_depth"].get("1.0", 'end-1c')),
+                  'colors': hexadecimal,
+                  'spots': {'amount': int(spot_setting["amount"].get("1.0", 'end-1c')),
+                            'radius': {'min': int(spot_setting["min"].get("1.0", 'end-1c')),
+                                       'max': int(spot_setting["max"].get("1.0", 'end-1c'))},
+                            'sampling_variation': int(spot_setting["sampling_variation"].get("1.0", 'end-1c'))
                             },
-                  'pixelize': {'percentage': float(tmp[9]) / 100,
-                               'sampling_variation': int(tmp[10]),
-                               'density': {'x': int(tmp[11]), 'y': int(tmp[12])}
+                  'pixelize': {'percentage': float(pixelization["percentage"].get("1.0", 'end-1c')) / 100,
+                               'sampling_variation': int(pixelization["sampling_variation"].get("1.0", 'end-1c')),
+                               'density': {'x': int(pixelization["x"].get("1.0", 'end-1c')),
+                                           'y': int(pixelization["y"].get("1.0", 'end-1c'))}
                                }
                   }
     camo_pattern = generate(parameters)
@@ -125,11 +172,13 @@ def enter_load_image():
 def enter_view_pattern():
     setup_params()
     if img:
+        set_default_setting()
         camo_generator()
     top_right_button.place_forget()
     top_left_button.configure(text="go back")
     bottom_left_button.configure(text="efficiency test")
-
+def exit_view_pattern():
+    cache_params()
 
 def enter_efficiency_test():
     setup_params()
@@ -137,38 +186,9 @@ def enter_efficiency_test():
 
 
 def setup_params():
-    width_label = Label(param_bar, text="width", bg="white")
-    pattern_setting["width"] = Text(param_bar)
-    height_label = Label(param_bar, text="height", bg="white")
-    pattern_setting["height"] = Text(param_bar)
-    polygon_size_label = Label(param_bar, text="polygon_size", bg="white")
-    pattern_setting["polygon_size"] = Text(param_bar)
-    color_bleed_label = Label(param_bar, text="color_bleed", bg="white")
-    pattern_setting["color_bleed"] = Text(param_bar)
-    max_depth_label = Label(param_bar, text="max_depth", bg="white")
-    pattern_setting["max_depth"] = Text(param_bar)
-    spots_label = Label(param_bar, text="spots", bg="white")
-    spots_amount_label = Label(param_bar, text="spots size", bg="white")
-    spot_setting["amount"] = Text(param_bar)
-    spots_radius_label = Label(param_bar, text="radius", bg="white")
-    spots_radius_label_min = Label(param_bar, text="min", bg="white")
-    spot_setting["min"] = Text(param_bar)
-    spots_radius_label_max = Label(param_bar, text="max", bg="white")
-    spot_setting["max"] = Text(param_bar)
-    spots_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="white")
-    spot_setting["sampling_variation"] = Text(param_bar)
-    pixelize_label = Label(param_bar, text="pixelize", bg="white")
-    pixelize_percentage_label = Label(param_bar, text="percentage", bg="white")
-    pixelization["percentage"] = Text(param_bar)
-    pixelize_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="white")
-    pixelization["sampling_variation"] = Text(param_bar)
-    pixelize_density_label = Label(param_bar, text="density", bg="white")
-    pixelize_density_x_label = Label(param_bar, text="x", bg="white")
-    pixelization["x"] = Text(param_bar)
-    pixelize_density_y_label = Label(param_bar, text="y", bg="white")
-    pixelization["y"] = Text(param_bar)
-    build_button = Button(param_bar, text="Rebuild", bg="white", command=lambda: camo_generator())
+    print("current state is ",current_state)
     if current_state == STATES.view_pattern:
+        print("place")
         _height = 25
         width_label.place(x=0, y=_height * 0, width=100 * scale_x, height=_height)
         height_label.place(x=100 * scale_x, y=_height * 0, width=100 * scale_x, height=_height)
@@ -202,10 +222,16 @@ def setup_params():
         pixelization["y"].place(x=100 * scale_x, y=_height * 17, width=100 * scale_x, height=_height)
         build_button.place(x=50*scale_x,y =_height * 19, width=100 * scale_x,height=_height)
     else:
+        print("forget")
+        print(width_label)
         width_label.place_forget()
         height_label.place_forget()
+        polygon_size_label.place_forget()
+        color_bleed_label.place_forget()
         pattern_setting["width"].place_forget()
         pattern_setting["height"].place_forget()
+        pattern_setting["polygon_size"].place_forget()
+        pattern_setting["color_bleed"].place_forget()
         max_depth_label.place_forget()
         pattern_setting["max_depth"].place_forget()
         spots_label.place_forget()
@@ -237,6 +263,7 @@ def top_left_button_command():  # restart_app or go back
         restart()
         pass
     elif current_state == STATES.view_pattern:
+        exit_view_pattern()
         current_state = STATES.load_image
         enter_load_image()
         pass
@@ -253,6 +280,7 @@ def bottom_left_button_command():  # proceed or save pattern/image
         enter_view_pattern()
         pass
     elif current_state == STATES.view_pattern:
+        exit_view_pattern()
         current_state = STATES.efficiency_test
         enter_efficiency_test()
         pass
@@ -319,4 +347,36 @@ overlay_image_label = Label(image_view, bg="yellow")
 overlay_image_label.place(x=500, y=250, width=500, height=250)
 detected_label = Label(footer, text="Detected objects", bg="white")
 detected_label.place(relx=(3 / 8.0), y=10 * scale_y, width=400 * scale_x, height=30 * scale_y)
+#param bar
+width_label = Label(param_bar, text="width", bg="white")
+pattern_setting["width"] = Text(param_bar)
+height_label = Label(param_bar, text="height", bg="white")
+pattern_setting["height"] = Text(param_bar)
+polygon_size_label = Label(param_bar, text="polygon_size", bg="white")
+pattern_setting["polygon_size"] = Text(param_bar)
+color_bleed_label = Label(param_bar, text="color_bleed", bg="white")
+pattern_setting["color_bleed"] = Text(param_bar)
+max_depth_label = Label(param_bar, text="max_depth", bg="white")
+pattern_setting["max_depth"] = Text(param_bar)
+spots_label = Label(param_bar, text="spots", bg="white")
+spots_amount_label = Label(param_bar, text="spots size", bg="white")
+spot_setting["amount"] = Text(param_bar)
+spots_radius_label = Label(param_bar, text="radius", bg="white")
+spots_radius_label_min = Label(param_bar, text="min", bg="white")
+spot_setting["min"] = Text(param_bar)
+spots_radius_label_max = Label(param_bar, text="max", bg="white")
+spot_setting["max"] = Text(param_bar)
+spots_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="white")
+spot_setting["sampling_variation"] = Text(param_bar)
+pixelize_label = Label(param_bar, text="pixelize", bg="white")
+pixelize_percentage_label = Label(param_bar, text="percentage", bg="white")
+pixelization["percentage"] = Text(param_bar)
+pixelize_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="white")
+pixelization["sampling_variation"] = Text(param_bar)
+pixelize_density_label = Label(param_bar, text="density", bg="white")
+pixelize_density_x_label = Label(param_bar, text="x", bg="white")
+pixelization["x"] = Text(param_bar)
+pixelize_density_y_label = Label(param_bar, text="y", bg="white")
+pixelization["y"] = Text(param_bar)
+build_button = Button(param_bar, text="Rebuild", bg="white", command=lambda: camo_generator())
 root.mainloop()
