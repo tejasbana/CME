@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, messagebox ,filedialog
+from tkinter import colorchooser, messagebox, filedialog
 import os
 
 from tkinter.filedialog import askopenfilename
@@ -13,8 +13,6 @@ import overlap
 import rcnn_detection
 from camogen.generate import generate
 from functions import *
-
-
 
 # page_contents=[]
 # all_images=[]
@@ -39,6 +37,7 @@ results = None
 # temporary implementation for pattern
 # program states
 from enum import Enum
+
 
 class STATES(Enum):
     load_image = 1
@@ -76,8 +75,6 @@ def camo_generator():
     pattern_label.image = camo_image
     print("camo pattern", camo_pattern)
     global savedimage
-    
-
 
     if len(filtered_array) > 0 and len(cropped_array) > 0:
         overlapped = overlap.overlap_camo(filtered_array, cropped_array, camo_pattern)
@@ -85,9 +82,11 @@ def camo_generator():
         overlap_image = ImageTk.PhotoImage(overlapped, master=image_view)
         overlay_image_label.configure(image=overlap_image)
         overlay_image_label.image = overlap_image
+
+
 def set_default_setting():
-    print("def set",tmp)
-    #clean up tmp
+    print("def set", tmp)
+    # clean up tmp
     for p1, p2, p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys()):
         pattern_setting[p1].delete('1.0', END)
         spot_setting[p2].delete('1.0', END)
@@ -112,6 +111,8 @@ def set_default_setting():
     pixelization["sampling_variation"].insert(END, tmp[10])
     pixelization["x"].insert(END, tmp[11])
     pixelization["y"].insert(END, tmp[12])
+
+
 def extract_color(image):
     if image.mode != "RGB":
         image = image.convert("RGB")
@@ -140,6 +141,8 @@ def extract_color(image):
     for color in hexadecimal:
         color_score[color] = "\n " + str(np.round((score[idx] * 100) / len(km.labels_), 2)) + "%"
         idx += 1
+
+
 def cache_params():
     tmp[0] = pattern_setting["width"].get("1.0", 'end-1c')
     tmp[1] = pattern_setting["height"].get("1.0", 'end-1c')
@@ -154,16 +157,22 @@ def cache_params():
     tmp[10] = pixelization["sampling_variation"].get("1.0", 'end-1c')
     tmp[11] = pixelization["x"].get("1.0", 'end-1c')
     tmp[12] = pixelization["y"].get("1.0", 'end-1c')
-    print("cache params",tmp)
+    print("cache params", tmp)
+
+
 def restart():
     if messagebox.askokcancel("Restart", "Do you want to Restart?"):
         python = sys.executable
         os.execl(python, python, *sys.argv)
+
+
 def enter_load_image():
     setup_params()
     top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
     top_left_button.configure(text="Restart App")
     bottom_left_button.configure(text="Proceed")
+
+
 def enter_view_pattern():
     setup_params()
     if img:
@@ -172,19 +181,24 @@ def enter_view_pattern():
     top_right_button.place_forget()
     top_left_button.configure(text="go back")
     bottom_left_button.configure(text="save_pattern")
+
+
 def exit_view_pattern():
     cache_params()
+
+
 def savefile():
     save_img = ImageTk.getimage(pattern_label.image)
-    print("save image is ",save_img)
-    file = filedialog.asksaveasfile(title='Save image',mode='w', defaultextension=".png")
+    print("save image is ", save_img)
+    file = filedialog.asksaveasfile(title='Save image', mode='w', defaultextension=".png")
     if file is None:
         return
     abs_path = os.path.abspath(file.name)
-    save_img.save(abs_path,"PNG")
+    save_img.save(abs_path, "PNG")
     pass
-def setup_params():
 
+
+def setup_params():
     if current_state == STATES.view_pattern:
         _height = 25
         width_label.place(x=0, y=_height * 0, width=100 * scale_x, height=_height)
@@ -192,32 +206,32 @@ def setup_params():
         pattern_setting["width"].place(x=0, y=_height * 1, width=100 * scale_x, height=_height)
         pattern_setting["height"].place(x=100 * scale_x, y=_height * 1, width=100 * scale_x, height=_height)
         polygon_size_label.place(x=0, y=_height * 2, width=100 * scale_x, height=_height)
-        color_bleed_label.place(x=100 * scale_x, y=_height * 2, width=100* scale_x, height=_height)
+        color_bleed_label.place(x=100 * scale_x, y=_height * 2, width=100 * scale_x, height=_height)
         pattern_setting["polygon_size"].place(x=0, y=_height * 3, width=100 * scale_x, height=_height)
         pattern_setting["color_bleed"].place(x=100 * scale_x, y=_height * 3, width=100 * scale_x, height=_height)
-        max_depth_label.place(x=50* scale_x, y=_height * 4, width=100 * scale_x, height=_height)
-        pattern_setting["max_depth"].place(x=50* scale_x, y=_height * 5, width=100 * scale_x, height=_height)
-        spots_label.place(x=50* scale_x, y=_height * 6, width=100 * scale_x, height=_height)
+        max_depth_label.place(x=50 * scale_x, y=_height * 4, width=100 * scale_x, height=_height)
+        pattern_setting["max_depth"].place(x=50 * scale_x, y=_height * 5, width=100 * scale_x, height=_height)
+        spots_label.place(x=50 * scale_x, y=_height * 6, width=100 * scale_x, height=_height)
         spots_amount_label.place(x=0, y=_height * 7, width=100 * scale_x, height=_height)
         spots_sampling_variation_label.place(x=100 * scale_x, y=_height * 7, width=100 * scale_x, height=_height)
         spot_setting["amount"].place(x=0, y=_height * 8, width=100 * scale_x, height=_height)
         spot_setting["sampling_variation"].place(x=100 * scale_x, y=_height * 8, width=100 * scale_x, height=_height)
-        spots_radius_label.place(x=50* scale_x, y=_height * 9, width=100 * scale_x, height=_height)
+        spots_radius_label.place(x=50 * scale_x, y=_height * 9, width=100 * scale_x, height=_height)
         spots_radius_label_min.place(x=0, y=_height * 10, width=100 * scale_x, height=_height)
         spots_radius_label_max.place(x=100 * scale_x, y=_height * 10, width=100 * scale_x, height=_height)
         spot_setting["min"].place(x=0, y=_height * 11, width=100 * scale_x, height=_height)
         spot_setting["max"].place(x=100 * scale_x, y=_height * 11, width=100 * scale_x, height=_height)
-        pixelize_label.place(x=50* scale_x, y=_height * 12, width=100 * scale_x, height=_height)
+        pixelize_label.place(x=50 * scale_x, y=_height * 12, width=100 * scale_x, height=_height)
         pixelize_percentage_label.place(x=0, y=_height * 13, width=100 * scale_x, height=_height)
         pixelize_sampling_variation_label.place(x=100 * scale_x, y=_height * 13, width=100 * scale_x, height=_height)
         pixelization["percentage"].place(x=0, y=_height * 14, width=100 * scale_x, height=_height)
         pixelization["sampling_variation"].place(x=100 * scale_x, y=_height * 14, width=100 * scale_x, height=_height)
-        pixelize_density_label.place(x=50* scale_x, y=_height * 15, width=100 * scale_x, height=_height)
+        pixelize_density_label.place(x=50 * scale_x, y=_height * 15, width=100 * scale_x, height=_height)
         pixelize_density_x_label.place(x=0, y=_height * 16, width=100 * scale_x, height=_height)
         pixelize_density_y_label.place(x=100 * scale_x, y=_height * 16, width=100 * scale_x, height=_height)
         pixelization["x"].place(x=0, y=_height * 17, width=100 * scale_x, height=_height)
         pixelization["y"].place(x=100 * scale_x, y=_height * 17, width=100 * scale_x, height=_height)
-        build_button.place(x=50*scale_x,y =_height * 19, width=100 * scale_x,height=_height)
+        build_button.place(x=50 * scale_x, y=_height * 19, width=100 * scale_x, height=_height)
     else:
         print("forget")
         print(width_label)
@@ -252,6 +266,8 @@ def setup_params():
         pixelization["x"].place_forget()
         pixelization["y"].place_forget()
         build_button.place_forget()
+
+
 # commands
 def top_left_button_command():  # restart_app or go back
     global current_state
@@ -264,16 +280,20 @@ def top_left_button_command():  # restart_app or go back
         current_state = STATES.load_image
         enter_load_image()
         pass
+
+
 def bottom_left_button_command():  # proceed or save pattern/image
     global current_state
     if current_state == STATES.load_image:
         current_state = STATES.view_pattern
         enter_view_pattern()
         pass
-    elif current_state ==  STATES.view_pattern :
+    elif current_state == STATES.view_pattern:
         savefile()
         # save image
         pass
+
+
 def top_right_button_command():  # load image
     filename = askopenfilename()
     global img
@@ -296,8 +316,8 @@ def top_right_button_command():  # load image
         global cropped_array
         if results["rois"].shape[0]:
             filtered_array, cropped_array = filter.remove_single_object(np.array(img), results, 0)
-            filtered = Image.fromarray(filtered_array.astype(np.uint8))
-            extract_color(filtered)
+            background, images = filter.remove_multi_object(np.array(img), results)
+            extract_color(Image.fromarray(background.astype(np.uint8)))
         else:
             filtered_array = None
             extract_color(img)
