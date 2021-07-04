@@ -68,7 +68,7 @@ def camo_generator():
     pattern_label.configure(image=camo_image)
     pattern_label.image = camo_image
     print("camo pattern", camo_pattern)
-    if filtered_array != None and cropped_array!= None:
+    if filtered_array is not None and cropped_array is not None:
         if len(filtered_array) > 0 and len(cropped_array) > 0:
             overlapped = overlap.overlap_camo(filtered_array, cropped_array, camo_pattern)
             overlapped.thumbnail((500, 250))
@@ -135,6 +135,9 @@ def extract_color(image):
         color_score[color] = "\n " + str(np.round((score[idx] * 100) / len(km.labels_), 2)) + "%"
         idx += 1
     btn_text = ""
+    for i in choosen_color:
+        i.destroy()
+    choosen_color.clear()
     for i in range(0,len(hexadecimal)):
         if hexadecimal[i] in color_score.keys():
             btn_text = str(hexadecimal[i] + color_score[hexadecimal[i]])
@@ -184,6 +187,7 @@ def enter_load_image():
 def enter_view_pattern():
     setup_color()
     setup_params()
+    overlay_image_label.config(image='')
     if img or len(hexadecimal) > 0:
         set_default_setting()
         camo_generator()
@@ -282,6 +286,8 @@ def add_color():
         hexadecimal.append(color)
         print("add color")
         btn_text = ""
+        if color is None:
+            return
         for color in hexadecimal:
             if color in color_score.keys():
                 btn_text = str(color + color_score[color])
@@ -349,6 +355,9 @@ def top_right_button_command():  # load image
     global img
     if filename:
         img = Image.open(filename)
+    else:
+        loaded_image_label.configure(image="")
+        img = None
     if img:
         img.thumbnail((500, 250))
         load_image = ImageTk.PhotoImage(img, master=image_view)
