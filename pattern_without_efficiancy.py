@@ -12,10 +12,6 @@ import math
 import rcnn_detection
 from camogen.generate import generate
 
-# page_contents=[]
-# all_images=[]
-# img_idx = [0]
-# displayed_img = []
 hexadecimal = []
 choosen_color = []
 max_color_limit = 7
@@ -138,6 +134,17 @@ def extract_color(image):
     for color in hexadecimal:
         color_score[color] = "\n " + str(np.round((score[idx] * 100) / len(km.labels_), 2)) + "%"
         idx += 1
+    btn_text = ""
+    for i in range(0,len(hexadecimal)):
+        if hexadecimal[i] in color_score.keys():
+            btn_text = str(hexadecimal[i] + color_score[hexadecimal[i]])
+        button_label = Label(param_bar, bg=hexadecimal[i] , text=btn_text, height=50, width=50)
+
+        x_place = 50 * (i % 4)
+        choosen_color.append(button_label)
+        y_place = 50 * (math.floor((i+1) / 4.1))
+        print(i," ",x_place, " ", y_place)
+        button_label.place(x=x_place * scale_x, y=y_place, width=50 * scale_x, height=50 * scale_y)
 
 
 def cache_params():
@@ -302,7 +309,7 @@ def setup_color():
         delete_color_button.place(x=150 * scale_x, y=450, width=50 * scale_x, height=50)
         for i in range(0, len(choosen_color)):
             x_place = 50 * (i % 4)
-            y_place = 50 * (math.floor(i / 4.1))
+            y_place = 50 * (math.floor((i+1) / 4.1))
             choosen_color[i].place(x=x_place * scale_x, y=y_place * scale_y, width=50 * scale_x, height=50 * scale_y)
     else:
         add_color_button.place_forget()
