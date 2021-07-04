@@ -1,18 +1,16 @@
 import tkinter as tk
-from tkinter import colorchooser, messagebox, filedialog
+from tkinter import *
 import os
-
+from tkinter import messagebox, filedialog, colorchooser
 from tkinter.filedialog import askopenfilename
 from PIL import Image, ImageTk
 import numpy as np
 from sklearn.cluster import MiniBatchKMeans
-from tkinter import Button as button
-
 import filter
 import overlap
+import math
 import rcnn_detection
 from camogen.generate import generate
-from functions import *
 
 # page_contents=[]
 # all_images=[]
@@ -20,6 +18,7 @@ from functions import *
 # displayed_img = []
 hexadecimal = []
 choosen_color = []
+max_color_limit = 7
 color_score = {}
 # Generators setting variables
 pattern_setting = {}
@@ -73,14 +72,13 @@ def camo_generator():
     pattern_label.configure(image=camo_image)
     pattern_label.image = camo_image
     print("camo pattern", camo_pattern)
-    global savedimage
-
-    if len(filtered_array) > 0 and len(cropped_array) > 0:
-        overlapped = overlap.overlap_camo(filtered_array, cropped_array, camo_pattern)
-        overlapped.thumbnail((500, 250))
-        overlap_image = ImageTk.PhotoImage(overlapped, master=image_view)
-        overlay_image_label.configure(image=overlap_image)
-        overlay_image_label.image = overlap_image
+    if filtered_array != None and cropped_array!= None:
+        if len(filtered_array) > 0 and len(cropped_array) > 0:
+            overlapped = overlap.overlap_camo(filtered_array, cropped_array, camo_pattern)
+            overlapped.thumbnail((500, 250))
+            overlap_image = ImageTk.PhotoImage(overlapped, master=image_view)
+            overlay_image_label.configure(image=overlap_image)
+            overlay_image_label.image = overlap_image
 
 
 def set_default_setting():
@@ -143,13 +141,13 @@ def extract_color(image):
 
 
 def cache_params():
-    if all(len(pattern_setting[key].get("1.0", 'end-1c'))!=0 for key in pattern_setting.keys()):
+    if all(len(pattern_setting[key].get("1.0", 'end-1c')) != 0 for key in pattern_setting.keys()):
         tmp[0] = pattern_setting["width"].get("1.0", 'end-1c')
         tmp[1] = pattern_setting["height"].get("1.0", 'end-1c')
         tmp[2] = pattern_setting["polygon_size"].get("1.0", 'end-1c')
         tmp[3] = pattern_setting["color_bleed"].get("1.0", 'end-1c')
         tmp[4] = pattern_setting["max_depth"].get("1.0", 'end-1c')
-    if all(len(spot_setting[key].get("1.0", 'end-1c')) != 0 for key in  spot_setting.keys()):
+    if all(len(spot_setting[key].get("1.0", 'end-1c')) != 0 for key in spot_setting.keys()):
         tmp[5] = spot_setting["amount"].get("1.0", 'end-1c')
         tmp[6] = spot_setting["min"].get("1.0", 'end-1c')
         tmp[7] = spot_setting["max"].get("1.0", 'end-1c')
@@ -169,6 +167,7 @@ def restart():
 
 
 def enter_load_image():
+    setup_color()
     setup_params()
     top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
     top_left_button.configure(text="Restart App")
@@ -176,8 +175,9 @@ def enter_load_image():
 
 
 def enter_view_pattern():
+    setup_color()
     setup_params()
-    if img:
+    if img or len(hexadecimal) > 0:
         set_default_setting()
         camo_generator()
     top_right_button.place_forget()
@@ -197,7 +197,6 @@ def savefile():
         return
     abs_path = os.path.abspath(file.name)
     save_img.save(abs_path, "PNG")
-    pass
 
 
 def setup_params():
@@ -270,6 +269,48 @@ def setup_params():
         build_button.place_forget()
 
 
+def add_color():
+    if len(hexadecimal) < max_color_limit:
+        color = colorchooser.askcolor()[1]
+        hexadecimal.append(color)
+        print("add color")
+        btn_text = ""
+        for color in hexadecimal:
+            if color in color_score.keys():
+                btn_text = str(color + color_score[color])
+            else:
+                btn_text = str(color)
+        button_label = Label(param_bar, bg=color, text=btn_text, height=50, width=50)
+        x_place = 50 * (len(choosen_color) % 4)
+        choosen_color.append(button_label)
+        y_place = 50 * (math.floor(len(choosen_color) / 4.1))
+        print(x_place, " ", y_place)
+        button_label.place(x=x_place * scale_x, y=y_place, width=50 * scale_x, height=50 * scale_y)
+
+
+def delete_color():
+    if len(hexadecimal) > 0:
+        hexadecimal.pop()
+    if len(choosen_color) > 0:
+        choosen_color[len(choosen_color) - 1].destroy()
+        choosen_color.pop()
+
+
+def setup_color():
+    if current_state == STATES.load_image:
+        add_color_button.place(x=0, y=450, width=50 * scale_x, height=50)
+        delete_color_button.place(x=150 * scale_x, y=450, width=50 * scale_x, height=50)
+        for i in range(0, len(choosen_color)):
+            x_place = 50 * (i % 4)
+            y_place = 50 * (math.floor(i / 4.1))
+            choosen_color[i].place(x=x_place * scale_x, y=y_place * scale_y, width=50 * scale_x, height=50 * scale_y)
+    else:
+        add_color_button.place_forget()
+        delete_color_button.place_forget()
+        for i in choosen_color:
+            i.place_forget()
+
+
 # commands
 def top_left_button_command():  # restart_app or go back
     global current_state
@@ -332,6 +373,7 @@ scale_y = 1
 root.title("Camoflauge Generator")
 root.geometry('%dx%d+%d+%d' % (800 * scale_x, 600 * scale_y, 0, 10))  # place GUI at x=0, y=10
 root.resizable(False, False)
+# Fixed UI
 header = Frame(root, width=800 * scale_x, height=50 * scale_y, bg="#2B411C")
 header.place(x=0, y=0)
 footer = Frame(root, width=800 * scale_x, height=50 * scale_y, bg="#2B411C")
@@ -340,11 +382,11 @@ param_bar = Frame(root, width=200 * scale_x, height=500 * scale_y, bg="#5B7742")
 param_bar.place(x=0, y=50 * scale_y)
 image_view = Frame(root, width=600 * scale_x, height=500 * scale_y, bg="#A4AA88")
 image_view.place(x=200 * scale_x, y=50 * scale_y)
-top_left_button = Button(header,bg="#4C5D34", text="Restart App", command=top_left_button_command)
+top_left_button = Button(header, bg="#4C5D34", text="Restart App", command=top_left_button_command)
 top_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
-top_right_button = Button(header,bg="#4C5D34", text="Load image", command=top_right_button_command)
+top_right_button = Button(header, bg="#4C5D34", text="Load image", command=top_right_button_command)
 top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
-bottom_left_button = Button(footer,bg="#4C5D34", text="Proceed", command=bottom_left_button_command)
+bottom_left_button = Button(footer, bg="#4C5D34", text="Proceed", command=bottom_left_button_command)
 bottom_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
 pattern_label = Label(image_view, bg="#A4AA88")
 pattern_label.place(x=0, y=0, width=500, height=500)
@@ -354,36 +396,42 @@ overlay_image_label = Label(image_view, bg="#A4AA88")
 overlay_image_label.place(x=500, y=250, width=500, height=250)
 detected_label = Label(footer, text="Detected objects", bg="#4C5D34")
 detected_label.place(relx=(3 / 8.0), y=10 * scale_y, width=400 * scale_x, height=30 * scale_y)
-#
+# changing UI
+# color picker UI
+add_color_button = Button(param_bar, text="ADD", command=add_color)
+delete_color_button = Button(param_bar, text="DELETE", command=delete_color)
+add_color_button.place(x=0, y=450, width=50 * scale_x, height=50)
+delete_color_button.place(x=150 * scale_x, y=450, width=50 * scale_x, height=50)
+# visualize pattern params UI
 width_label = Label(param_bar, text="width", bg="#A4AA88")
-pattern_setting["width"] = Text(param_bar,bg="#5B7742")
+pattern_setting["width"] = Text(param_bar, bg="#5B7742")
 height_label = Label(param_bar, text="height", bg="#A4AA88")
-pattern_setting["height"] = Text(param_bar,bg="#5B7742")
+pattern_setting["height"] = Text(param_bar, bg="#5B7742")
 polygon_size_label = Label(param_bar, text="polygon_size", bg="#A4AA88")
-pattern_setting["polygon_size"] = Text(param_bar,bg="#5B7742")
+pattern_setting["polygon_size"] = Text(param_bar, bg="#5B7742")
 color_bleed_label = Label(param_bar, text="color_bleed", bg="#A4AA88")
-pattern_setting["color_bleed"] = Text(param_bar,bg="#5B7742")
+pattern_setting["color_bleed"] = Text(param_bar, bg="#5B7742")
 max_depth_label = Label(param_bar, text="max_depth", bg="#A4AA88")
-pattern_setting["max_depth"] = Text(param_bar,bg="#5B7742")
+pattern_setting["max_depth"] = Text(param_bar, bg="#5B7742")
 spots_label = Label(param_bar, text="spots", bg="#A4AA88")
 spots_amount_label = Label(param_bar, text="spots size", bg="#A4AA88")
-spot_setting["amount"] = Text(param_bar,bg="#5B7742")
+spot_setting["amount"] = Text(param_bar, bg="#5B7742")
 spots_radius_label = Label(param_bar, text="radius", bg="#A4AA88")
 spots_radius_label_min = Label(param_bar, text="min", bg="#A4AA88")
-spot_setting["min"] = Text(param_bar,bg="#5B7742")
+spot_setting["min"] = Text(param_bar, bg="#5B7742")
 spots_radius_label_max = Label(param_bar, text="max", bg="#A4AA88")
-spot_setting["max"] = Text(param_bar,bg="#5B7742")
+spot_setting["max"] = Text(param_bar, bg="#5B7742")
 spots_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="#A4AA88")
-spot_setting["sampling_variation"] = Text(param_bar,bg="#5B7742")
+spot_setting["sampling_variation"] = Text(param_bar, bg="#5B7742")
 pixelize_label = Label(param_bar, text="pixelize", bg="#A4AA88")
 pixelize_percentage_label = Label(param_bar, text="percentage", bg="#A4AA88")
-pixelization["percentage"] = Text(param_bar,bg="#5B7742")
+pixelization["percentage"] = Text(param_bar, bg="#5B7742")
 pixelize_sampling_variation_label = Label(param_bar, text="sampling_variation", bg="#A4AA88")
-pixelization["sampling_variation"] = Text(param_bar,bg="#5B7742")
+pixelization["sampling_variation"] = Text(param_bar, bg="#5B7742")
 pixelize_density_label = Label(param_bar, text="density", bg="#A4AA88")
 pixelize_density_x_label = Label(param_bar, text="x", bg="#A4AA88")
-pixelization["x"] = Text(param_bar,bg="#5B7742")
+pixelization["x"] = Text(param_bar, bg="#5B7742")
 pixelize_density_y_label = Label(param_bar, text="y", bg="#A4AA88")
-pixelization["y"] = Text(param_bar,bg="#5B7742")
+pixelization["y"] = Text(param_bar, bg="#5B7742")
 build_button = Button(param_bar, text="Rebuild", bg="#A4AA88", command=lambda: camo_generator())
 root.mainloop()
