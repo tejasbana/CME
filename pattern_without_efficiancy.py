@@ -141,8 +141,7 @@ def extract_color(image):
     for i in range(0,len(hexadecimal)):
         if hexadecimal[i] in color_score.keys():
             btn_text = str(hexadecimal[i] + color_score[hexadecimal[i]])
-        button_label = Label(param_bar, bg=hexadecimal[i] , text=btn_text, height=50, width=50)
-
+        button_label = Label(param_bar, bg=hexadecimal[i] , text=btn_text, height=50, width=50 , command=lambda: delete_color(button_label,color))
         x_place = 50 * (i % 4)
         choosen_color.append(button_label)
         y_place = 50 * (math.floor((i+1) / 4.1))
@@ -169,18 +168,18 @@ def cache_params():
         tmp[12] = pixelization["y"].get("1.0", 'end-1c')
     print("cache params", tmp)
 
-
+'''
 def restart():
     if messagebox.askokcancel("Restart", "Do you want to Restart?"):
         python = sys.executable
-        os.execl(python, python, *sys.argv)
+        os.execl(python, python, *sys.argv)'''
 
 
 def enter_load_image():
     setup_color()
     setup_params()
     top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
-    top_left_button.configure(text="Restart App")
+    top_left_button.configure(text="Add Color")
     bottom_left_button.configure(text="Proceed")
 
 
@@ -293,7 +292,7 @@ def add_color():
                 btn_text = str(color + color_score[color])
             else:
                 btn_text = str(color)
-        button_label = Label(param_bar, bg=color, text=btn_text, height=50, width=50)
+        button_label = Button(param_bar, bg=color, text=btn_text, height=50, width=50,command=lambda: delete_color(button_label,color),highlightbackground=color)
         x_place = 50 * (len(choosen_color) % 4)
         choosen_color.append(button_label)
         y_place = 50 * (math.floor(len(choosen_color) / 4.1))
@@ -301,25 +300,22 @@ def add_color():
         button_label.place(x=x_place * scale_x, y=y_place, width=50 * scale_x, height=50 * scale_y)
 
 
-def delete_color():
-    if len(hexadecimal) > 0:
-        hexadecimal.pop()
-    if len(choosen_color) > 0:
-        choosen_color[len(choosen_color) - 1].destroy()
-        choosen_color.pop()
+def delete_color(button_label, to_delete):
+    button_label.destroy()
+    if to_delete in hexadecimal:
+        hexadecimal.remove(to_delete)
+    if button_label in choosen_color:
+        choosen_color.remove(button_label)
+    setup_color()
 
 
 def setup_color():
     if current_state == STATES.load_image:
-        add_color_button.place(x=0, y=450, width=50 * scale_x, height=50)
-        delete_color_button.place(x=150 * scale_x, y=450, width=50 * scale_x, height=50)
         for i in range(0, len(choosen_color)):
             x_place = 50 * (i % 4)
             y_place = 50 * (math.floor((i+1) / 4.1))
             choosen_color[i].place(x=x_place * scale_x, y=y_place * scale_y, width=50 * scale_x, height=50 * scale_y)
     else:
-        add_color_button.place_forget()
-        delete_color_button.place_forget()
         for i in choosen_color:
             i.place_forget()
 
@@ -328,8 +324,7 @@ def setup_color():
 def top_left_button_command():  # restart_app or go back
     global current_state
     if current_state == STATES.load_image:
-        # restart app
-        restart()
+        add_color()
         pass
     elif current_state == STATES.view_pattern:
         exit_view_pattern()
@@ -398,11 +393,11 @@ param_bar = Frame(root, width=200 * scale_x, height=500 * scale_y, bg="#5B7742")
 param_bar.place(x=0, y=50 * scale_y)
 image_view = Frame(root, width=600 * scale_x, height=500 * scale_y, bg="#A4AA88")
 image_view.place(x=200 * scale_x, y=50 * scale_y)
-top_left_button = Button(header, bg="#4C5D34", text="Restart App", command=top_left_button_command)
+top_left_button = Button(header, bg="#4C5D34", text="Add Color", command=top_left_button_command,highlightbackground='#4C5D34')
 top_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
-top_right_button = Button(header, bg="#4C5D34", text="Load image", command=top_right_button_command)
+top_right_button = Button(header, bg="#4C5D34", text="Load image", command=top_right_button_command,highlightbackground='#4C5D34')
 top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
-bottom_left_button = Button(footer, bg="#4C5D34", text="Proceed", command=bottom_left_button_command)
+bottom_left_button = Button(footer, bg="#4C5D34", text="Proceed", command=bottom_left_button_command,highlightbackground='#4C5D34')
 bottom_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
 pattern_label = Label(image_view, bg="#A4AA88")
 pattern_label.place(x=0, y=0, width=500, height=500)
@@ -413,11 +408,6 @@ overlay_image_label.place(x=500, y=250, width=500, height=250)
 detected_label = Label(footer, text="Detected objects", bg="#4C5D34")
 detected_label.place(relx=(3 / 8.0), y=10 * scale_y, width=400 * scale_x, height=30 * scale_y)
 # changing UI
-# color picker UI
-add_color_button = Button(param_bar, text="ADD", command=add_color)
-delete_color_button = Button(param_bar, text="DELETE", command=delete_color)
-add_color_button.place(x=0, y=450, width=50 * scale_x, height=50)
-delete_color_button.place(x=150 * scale_x, y=450, width=50 * scale_x, height=50)
 # visualize pattern params UI
 width_label = Label(param_bar, text="width", bg="#A4AA88")
 pattern_setting["width"] = Text(param_bar, bg="#5B7742")
