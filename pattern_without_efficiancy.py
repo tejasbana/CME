@@ -39,7 +39,17 @@ class STATES(Enum):
 
 
 current_state = STATES.load_image
-tmp = ['1000', '1000', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
+
+
+saved_configs = {
+    "Maple": ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50'],
+    "Green Blots": ['1024', '1024', '200', '6', '15', '20000', '7', '14', '10', '0', '20', '100', '100'],
+    "Mighty Swede": ['1024', '1024', '400', '0', '15', '0', '5', '10', '0', '0', '20', '100', '100'],
+    "Desert": ['1024', '1024', '500', '0', '15', '2500', '8', '12', '18', '0', '10', '100', '100'],
+    "Klostershwester": ['1024', '1024', '300', '3', '15', '0', '5', '10', '0', '0', '10', '100', '100']
+}
+
+tmp = ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
 # functions
 from enum import Enum
 
@@ -78,15 +88,13 @@ def camo_generator():
 
 
 def set_default_setting():
-    print("def set", tmp)
-    # clean up tmp
+    tmp = saved_configs[selected_config.get()]
+    print(tmp)
+    # clean up fields
     for p1, p2, p3 in zip(pattern_setting.keys(), spot_setting.keys(), pixelization.keys()):
         pattern_setting[p1].delete('1.0', END)
         spot_setting[p2].delete('1.0', END)
         pixelization[p3].delete('1.0', END)
-        pattern_setting[p1].grid_forget()
-        spot_setting[p2].grid_forget()
-        pixelization[p3].grid_forget()
     pattern_setting["max_depth"].delete('1.0', END)
     # insert values
     pattern_setting["width"].insert(END, tmp[0])
@@ -138,14 +146,15 @@ def extract_color(image):
     for i in choosen_color:
         i.destroy()
     choosen_color.clear()
-    for i in range(0,len(hexadecimal)):
+    for i in range(0, len(hexadecimal)):
         if hexadecimal[i] in color_score.keys():
             btn_text = str(hexadecimal[i] + color_score[hexadecimal[i]])
-        button_label = Label(param_bar, bg=hexadecimal[i] , text=btn_text, height=50, width=50 , command=lambda: delete_color(button_label,color))
+        button_label = Label(param_bar, bg=hexadecimal[i], text=btn_text, height=50, width=50,
+                             command=lambda: delete_color(button_label, color))
         x_place = 50 * (i % 4)
         choosen_color.append(button_label)
-        y_place = 50 * (math.floor((i+1) / 4.1))
-        print(i," ",x_place, " ", y_place)
+        y_place = 50 * (math.floor((i + 1) / 4.1))
+        print(i, " ", x_place, " ", y_place)
         button_label.place(x=x_place * scale_x, y=y_place, width=50 * scale_x, height=50 * scale_y)
 
 
@@ -167,6 +176,7 @@ def cache_params():
         tmp[11] = pixelization["x"].get("1.0", 'end-1c')
         tmp[12] = pixelization["y"].get("1.0", 'end-1c')
     print("cache params", tmp)
+
 
 '''
 def restart():
@@ -292,7 +302,8 @@ def add_color():
                 btn_text = str(color + color_score[color])
             else:
                 btn_text = str(color)
-        button_label = Button(param_bar, bg=color, text=btn_text, height=50, width=50,command=lambda: delete_color(button_label,color),highlightbackground=color)
+        button_label = Button(param_bar, bg=color, text=btn_text, height=50, width=50,
+                              command=lambda: delete_color(button_label, color), highlightbackground=color)
         x_place = 50 * (len(choosen_color) % 4)
         choosen_color.append(button_label)
         y_place = 50 * (math.floor(len(choosen_color) / 4.1))
@@ -313,7 +324,7 @@ def setup_color():
     if current_state == STATES.load_image:
         for i in range(0, len(choosen_color)):
             x_place = 50 * (i % 4)
-            y_place = 50 * (math.floor((i+1) / 4.1))
+            y_place = 50 * (math.floor((i + 1) / 4.1))
             choosen_color[i].place(x=x_place * scale_x, y=y_place * scale_y, width=50 * scale_x, height=50 * scale_y)
     else:
         for i in choosen_color:
@@ -393,11 +404,14 @@ param_bar = Frame(root, width=200 * scale_x, height=500 * scale_y, bg="#5B7742")
 param_bar.place(x=0, y=50 * scale_y)
 image_view = Frame(root, width=600 * scale_x, height=500 * scale_y, bg="#A4AA88")
 image_view.place(x=200 * scale_x, y=50 * scale_y)
-top_left_button = Button(header, bg="#4C5D34", text="Add Color", command=top_left_button_command,highlightbackground='#4C5D34')
+top_left_button = Button(header, bg="#4C5D34", text="Add Color", command=top_left_button_command,
+                         highlightbackground='#4C5D34')
 top_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
-top_right_button = Button(header, bg="#4C5D34", text="Load image", command=top_right_button_command,highlightbackground='#4C5D34')
+top_right_button = Button(header, bg="#4C5D34", text="Load image", command=top_right_button_command,
+                          highlightbackground='#4C5D34')
 top_right_button.place(x=(800 - 200) * scale_x, y=0, width=200 * scale_x, height=50 * scale_y)
-bottom_left_button = Button(footer, bg="#4C5D34", text="Proceed", command=bottom_left_button_command,highlightbackground='#4C5D34')
+bottom_left_button = Button(footer, bg="#4C5D34", text="Proceed", command=bottom_left_button_command,
+                            highlightbackground='#4C5D34')
 bottom_left_button.place(x=0, y=0, width=200 * scale_x, height=50 * scale_y)
 pattern_label = Label(image_view, bg="#A4AA88")
 pattern_label.place(x=0, y=0, width=500, height=500)
@@ -408,6 +422,15 @@ overlay_image_label.place(x=500, y=250, width=500, height=250)
 detected_label = Label(footer, text="Detected objects", bg="#4C5D34")
 detected_label.place(relx=(3 / 8.0), y=10 * scale_y, width=400 * scale_x, height=30 * scale_y)
 # changing UI
+def callback(*args):
+    print("changed to ", selected_config.get())
+    set_default_setting()
+selected_config = StringVar(header)
+selected_config.set(list(saved_configs.keys())[0])
+selected_config.trace('w', callback)
+drop = OptionMenu(header , selected_config , *list(saved_configs.keys()))
+drop.configure(bg="#2B411C")
+drop.place(x=200*scale_x, y=0, width=200, height=50)
 # visualize pattern params UI
 width_label = Label(param_bar, text="width", bg="#A4AA88")
 pattern_setting["width"] = Text(param_bar, bg="#5B7742")
