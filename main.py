@@ -40,7 +40,6 @@ class STATES(Enum):
 
 current_state = STATES.load_image
 
-
 saved_configs = {
     "Maple": ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50'],
     "Green Blots": ['1024', '1024', '200', '6', '15', '20000', '7', '14', '10', '0', '20', '100', '100'],
@@ -147,15 +146,7 @@ def extract_color(image):
         i.destroy()
     choosen_color.clear()
     for i in range(0, len(hexadecimal)):
-        if hexadecimal[i] in color_score.keys():
-            btn_text = str(hexadecimal[i] + color_score[hexadecimal[i]])
-        button_label = Label(param_bar, bg=hexadecimal[i], text=btn_text, height=50, width=50,
-                             command=lambda: delete_color(button_label, color))
-        x_place = 50 * (i % 4)
-        choosen_color.append(button_label)
-        y_place = 50 * (math.floor((i + 1) / 4.1))
-        print(i, " ", x_place, " ", y_place)
-        button_label.place(x=x_place * scale_x, y=y_place, width=50 * scale_x, height=50 * scale_y)
+        add_color(hexadecimal[i])
 
 
 def cache_params():
@@ -289,19 +280,18 @@ def setup_params():
         build_button.place_forget()
 
 
-def add_color():
+def add_color(color=None):
     if len(hexadecimal) < max_color_limit:
-        color = colorchooser.askcolor()[1]
-        hexadecimal.append(color)
-        print("add color")
+        if color is None:
+            color = colorchooser.askcolor()[1]
+            hexadecimal.append(color)
         btn_text = ""
         if color is None:
             return
-        for color in hexadecimal:
-            if color in color_score.keys():
-                btn_text = str(color + color_score[color])
-            else:
-                btn_text = str(color)
+        if color in color_score.keys():
+            btn_text = str(color + color_score[color])
+        else:
+            btn_text = str(color)
         button_label = Button(param_bar, bg=color, text=btn_text, height=50, width=50,
                               command=lambda: delete_color(button_label, color), highlightbackground=color)
         x_place = 50 * (len(choosen_color) % 4)
@@ -312,6 +302,7 @@ def add_color():
 
 
 def delete_color(button_label, to_delete):
+    print(button_label)
     button_label.destroy()
     if to_delete in hexadecimal:
         hexadecimal.remove(to_delete)
@@ -421,16 +412,20 @@ overlay_image_label = Label(image_view, bg="#A4AA88")
 overlay_image_label.place(x=500, y=250, width=500, height=250)
 detected_label = Label(footer, text="Detected objects", bg="#4C5D34")
 detected_label.place(relx=(3 / 8.0), y=10 * scale_y, width=400 * scale_x, height=30 * scale_y)
+
+
 # changing UI
 def callback(*args):
     print("changed to ", selected_config.get())
     set_default_setting()
+
+
 selected_config = StringVar(header)
 selected_config.set(list(saved_configs.keys())[0])
 selected_config.trace('w', callback)
-drop = OptionMenu(header , selected_config , *list(saved_configs.keys()))
+drop = OptionMenu(header, selected_config, *list(saved_configs.keys()))
 drop.configure(bg="#2B411C")
-drop.place(x=200*scale_x, y=0, width=200, height=50)
+drop.place(x=200 * scale_x, y=0, width=200, height=50)
 # visualize pattern params UI
 width_label = Label(param_bar, text="width", bg="#A4AA88")
 pattern_setting["width"] = Text(param_bar, bg="#5B7742")
