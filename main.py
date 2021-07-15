@@ -381,6 +381,7 @@ def top_right_button_command():  # load image
 
 # root, UI elements , everything calculated from top left
 root = Tk()
+root.iconbitmap("icon.ico")
 scale_x = 1.5
 scale_y = 1
 root.title("Camoflauge Generator")
