@@ -23,6 +23,7 @@ pixelization = {}
 # Pattern Generator
 selected_pattern = 0
 # image_array variables
+camo_pattern_cache = None
 img = None
 masked_array = None
 filtered_array = None
@@ -39,16 +40,17 @@ class STATES(Enum):
 
 
 current_state = STATES.load_image
-
+tmp = ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
 saved_configs = {
+    "Cache": tmp,
     "Maple": ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50'],
     "Green Blots": ['1024', '1024', '200', '6', '15', '20000', '7', '14', '10', '0', '20', '100', '100'],
     "Mighty Swede": ['1024', '1024', '400', '0', '15', '0', '5', '10', '0', '0', '20', '100', '100'],
     "Desert": ['1024', '1024', '500', '0', '15', '2500', '8', '12', '18', '0', '10', '100', '100'],
-    "Klostershwester": ['1024', '1024', '300', '3', '15', '0', '5', '10', '0', '0', '10', '100', '100']
+    "Klostershwester": ['1024', '1024', '300', '3', '15', '0', '5', '10', '0', '0', '10', '100', '100'],
 }
 
-tmp = ['1024', '1024', '150', '3', '15', '500', '20', '30', '20', '100', '20', '50', '50']
+
 # functions
 from enum import Enum
 
@@ -72,6 +74,8 @@ def camo_generator():
                                }
                   }
     camo_pattern = generate(parameters)
+    camo_pattern_cache = camo_pattern
+    print("cache pattern",camo_pattern_cache)
     camo_pattern = camo_pattern.resize((500, 500))
     camo_image = ImageTk.PhotoImage(camo_pattern, master=image_view)
     pattern_label.configure(image=camo_image)
@@ -201,8 +205,7 @@ def exit_view_pattern():
 
 
 def savefile():
-    save_img = ImageTk.getimage(pattern_label.image)
-    print("save image is ", save_img)
+    save_img = ImageTk.getimage(pattern_label.image).resize((int(tmp[0]),int(tmp[1])))
     file = filedialog.asksaveasfile(title='Save image', mode='w', defaultextension=".png")
     if file is None:
         return
