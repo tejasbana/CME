@@ -354,12 +354,12 @@ def top_right_button_command():  # load image
     filename = askopenfilename()
     global img
     if filename:
-        img = Image.open(filename)
+        img = Image.open(filename).convert('RGB')
     else:
         loaded_image_label.configure(image="")
         img = None
     if img:
-        img.thumbnail((500, 250))
+        img.thumbnail((500*scale_x, 250*scale_y))
         load_image = ImageTk.PhotoImage(img, master=image_view)
         loaded_image_label.configure(image=load_image)
         loaded_image_label.image = load_image
